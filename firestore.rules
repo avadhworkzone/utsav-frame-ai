@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public: anyone with the share link can load a template.
+    match /templates/{templateId} {
+      allow read: if true;
+
+      // Creators: any signed-in user can create templates.
+      allow create: if request.auth != null;
+
+      // Only the creator (ownerUid) can edit/delete their template.
+      allow update, delete: if request.auth != null
+        && request.auth.uid == resource.data.ownerUid;
+    }
+  }
+}
+
